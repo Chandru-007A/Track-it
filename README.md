@@ -4,4 +4,4 @@
 
 ```
 npx expo start
-```bash
+```
