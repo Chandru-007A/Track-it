@@ -1,6 +1,6 @@
 declare module 'react-native-qrcode-svg' {
   import React from 'react';
-  import { ViewProps } from 'react-native';
+    import { ViewProps } from 'react-native';
 
   export interface QRCodeProps {
     /* Value to encode, must be a string */

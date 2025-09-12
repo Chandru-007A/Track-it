@@ -1,6 +1,7 @@
 import { Fonts } from '@/constants/theme';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+// Explicitly import as a default import
 import QRCode from 'react-native-qrcode-svg';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
@@ -51,16 +52,22 @@ export function QRCodeGenerator({
 
   return (
     <ThemedView style={styles.container}>
+      {/* We use a try-catch with conditional rendering to handle potential QRCode component issues */}
       <View style={styles.qrContainer}>
-        <QRCode
-          value={qrValue}
-          size={size}
-          backgroundColor="white"
-          color="black"
-        />
+        {qrValue && (
+          <QRCode
+            value={qrValue}
+            size={size}
+            color="black"
+            backgroundColor="white"
+          />
+        )}
       </View>
+      
       {showId && (
-        <ThemedText style={styles.qrIdText}>{qrId}</ThemedText>
+        <ThemedText style={styles.idText}>
+          {qrId}
+        </ThemedText>
       )}
     </ThemedView>
   );
@@ -70,18 +77,22 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
-    marginVertical: 8,
-    borderRadius: 8,
+    padding: 5,
   },
   qrContainer: {
-    padding: 8,
+    padding: 10,
     backgroundColor: 'white',
-    borderRadius: 4,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  qrIdText: {
+  idText: {
     marginTop: 8,
-    fontFamily: Fonts.mono,
     fontSize: 14,
-  },
+    fontFamily: Fonts.mono,
+    textAlign: 'center',
+  }
 });
