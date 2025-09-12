@@ -38,7 +38,7 @@ export class DatabaseService {
   static async createTrackFitting(fitting: Omit<TrackFitting, 'id' | 'created_at' | 'updated_at'>): Promise<TrackFitting> {
     const { data, error } = await supabase
       .from(TABLES.TRACK_FITTINGS)
-      .insert(fitting)
+      .insert(fitting as any)
       .select()
       .single();
     
@@ -47,9 +47,13 @@ export class DatabaseService {
   }
 
   static async updateTrackFitting(id: string, updates: Partial<TrackFitting>): Promise<TrackFitting> {
+    // Type casting to avoid TypeScript errors with Supabase query builder
+    type UpdateData = Record<string, any>;
+    const updateData: UpdateData = { ...updates, updated_at: new Date().toISOString() };
+    
     const { data, error } = await supabase
       .from(TABLES.TRACK_FITTINGS)
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
@@ -73,7 +77,7 @@ export class DatabaseService {
   static async createInspection(inspection: Omit<InspectionRecord, 'id' | 'created_at'>): Promise<InspectionRecord> {
     const { data, error } = await supabase
       .from(TABLES.INSPECTIONS)
-      .insert(inspection)
+      .insert(inspection as any)
       .select()
       .single();
     
@@ -104,6 +108,16 @@ export class DatabaseService {
   }
 
   // QR Code Operations
+  static async getAllQRCodes(): Promise<QRCode[]> {
+    const { data, error } = await supabase
+      .from(TABLES.QR_CODES)
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  }
+  
   static async getQRCodeById(qrId: string): Promise<QRCode | null> {
     const { data, error } = await supabase
       .from(TABLES.QR_CODES)
@@ -206,7 +220,7 @@ export class DatabaseService {
       replacement_scheduled: 0,
     };
 
-    data?.forEach(fitting => {
+    data?.forEach((fitting: any) => {
       const condition = fitting.performance?.condition;
       if (condition === 'Good' || condition === 'Satisfactory') {
         summary.in_service++;
