@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR Resolver</title>
+    <script>
+      (function () {
+        const params = new URLSearchParams(location.search);
+        const id = params.get('id');
+        // Try to deep-link into the app (Expo scheme)
+        if (id) {
+          const appUrl = 'trackit://scan?id=' + encodeURIComponent(id);
+          // Attempt to open app
+          window.location.replace(appUrl);
+          // Fallback to JSON endpoint after a delay
+          setTimeout(function () {
+            window.location.href = '/api/qr?id=' + encodeURIComponent(id);
+          }, 1200);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Opening app… If it doesn't open, you'll be redirected.</p>
+  </body>
+  </html>
+
+

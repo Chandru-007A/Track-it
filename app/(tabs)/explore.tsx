@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
 
 import { Collapsible } from '@/components/ui/collapsible';
 import { ExternalLink } from '@/components/external-link';
@@ -8,8 +9,55 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts } from '@/constants/theme';
+import { DatabaseService } from '@/lib/database-service';
+import { QRCode } from '@/types/database';
+import { QRCodeGenerator } from '@/components/QRCodeGenerator';
 
 export default function TabTwoScreen() {
+  const [qrCodes, setQrCodes] = useState<QRCode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadQRCodes() {
+      try {
+        const codes = await DatabaseService.getAllQRCodes();
+        setQrCodes(codes);
+      } catch (err) {
+        console.error('Error fetching QR codes:', err);
+        setError('Failed to load QR codes. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadQRCodes();
+  }, []);
+
+  const renderQRCodeItem = ({ item }: { item: QRCode }) => (
+    <ThemedView style={styles.qrCodeCard}>
+      <ThemedText style={styles.qrCodeTitle}>QR Code: {item.qr_id}</ThemedText>
+      <QRCodeGenerator 
+        qrId={item.qr_id} 
+        size={180} 
+        showId={true}
+        // Using URL format so Google Lens can open it directly
+        payload="url" 
+      />
+      <ThemedText style={styles.qrCodeDetails}>
+        Fitting ID: {item.fitting_id}
+      </ThemedText>
+      <ThemedText style={styles.qrCodeDetails}>
+        Status: {item.laser_marked ? 'Laser Marked' : 'Not Marked'}
+      </ThemedText>
+      {item.verification_status && (
+        <ThemedText style={styles.qrCodeDetails}>
+          Verification: {item.verification_status}
+        </ThemedText>
+      )}
+    </ThemedView>
+  );
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -27,23 +75,46 @@ export default function TabTwoScreen() {
           style={{
             fontFamily: Fonts.rounded,
           }}>
-          Explore
+          QR Code Explorer
         </ThemedText>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
+      
+      {loading ? (
+        <ThemedView style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+          <ThemedText style={styles.loadingText}>Loading QR codes...</ThemedText>
+        </ThemedView>
+      ) : error ? (
+        <ThemedView style={styles.errorContainer}>
+          <ThemedText style={styles.errorText}>{error}</ThemedText>
+        </ThemedView>
+      ) : qrCodes.length === 0 ? (
+        <ThemedView style={styles.emptyContainer}>
+          <ThemedText style={styles.emptyText}>No QR codes found.</ThemedText>
+        </ThemedView>
+      ) : (
+        <FlatList
+          data={qrCodes}
+          keyExtractor={(item) => item.qr_id}
+          renderItem={renderQRCodeItem}
+          contentContainerStyle={styles.qrCodeList}
+          scrollEnabled={false} // Disable scrolling since we're using ParallaxScrollView
+        />
+      )}
+      
+      <ThemedText style={styles.instructionText}>
+        Scan any QR code using Google Lens to view detailed information.
+      </ThemedText>
+      <Collapsible title="QR Code Scanner Instructions">
         <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
+          1. Use Google Lens or any QR scanner to scan a code above.
         </ThemedText>
         <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
+          2. When scanned, it will open a webpage with detailed information about the fitting.
         </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
+        <ThemedText>
+          3. The QR code contains a URL that links to the fitting's details in our database.
+        </ThemedText>
       </Collapsible>
       <Collapsible title="Android, iOS, and web support">
         <ThemedText>
@@ -108,5 +179,62 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
+    marginBottom: 16,
   },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+  },
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    color: 'red',
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontStyle: 'italic',
+  },
+  qrCodeList: {
+    paddingVertical: 10,
+  },
+  qrCodeCard: {
+    marginVertical: 10,
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  qrCodeTitle: {
+    fontSize: 18,
+    fontFamily: Fonts.rounded,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  qrCodeDetails: {
+    marginTop: 8,
+    fontFamily: Fonts.mono,
+    fontSize: 14,
+  },
+  instructionText: {
+    marginTop: 16,
+    marginBottom: 16,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  }
 });
