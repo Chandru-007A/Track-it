@@ -6,7 +6,7 @@ import { DatabaseService } from '@/lib/database-service';
 import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, Linking, Pressable, StyleSheet, View } from 'react-native';
 
 // Types for dashboard statistics
 interface DashboardStats {
@@ -182,6 +182,28 @@ const Dashboard = () => {
                 <ThemedText style={styles.viewAllText}>View All Activity →</ThemedText>
               </Pressable>
             </Link>
+          </ThemedView>
+          
+          {/* PDF Form Demo Section */}
+          <ThemedText style={styles.sectionTitle}>QR Code PDF Form</ThemedText>
+          <ThemedView style={styles.pdfDemoContainer}>
+            <ThemedView style={styles.pdfInfoContainer}>
+              <MaterialCommunityIcons name="file-pdf-box" size={40} color="#FF5722" style={{marginBottom: 10}} />
+              <ThemedText style={styles.pdfTitle}>Railway Fitting Form</ThemedText>
+              <ThemedText style={styles.pdfDescription}>
+                Scan any QR code to access the PDF form for railway fitting documentation.
+              </ThemedText>
+              <Pressable 
+                style={styles.pdfButton}
+                onPress={() => {
+                  Linking.openURL("https://www.pdffiller.com/jsfiller-desk15/?traceparent=00-bfb6881c86563a7971447a0781a7034b-07b7b0d5e98736de-01&flat_pdf_quality=high&isShareViaLink=1&lang=en&projectId=1950190490&richTextFormatting=true&jsf-page-rearrange-v2=true&jsf-redesign-full=true&jsf-fake-edit-embedded=true&isSkipEditorLoadFrequency=true&jsf-probability-70=true&jsf-socket-io=false&jsf-simplified-modes-iteration-1=true&jsf-offline-mode=false&jsf-heading-bold=true&jsf-fake-edit-stream-editing=true&acc-share-button-in-editor=true&jsf-all-tools-tab=false&jsf-all-tools-tab-branch-b=false&jsf-editor-pdfjs-five=true&jsf-context-menu-to-right-panel=false&jsf-context-menu-to-right-panel-branch-b=false&jsf-disable-autosave=true&jsf-disable-browser-translation=false&jsf-web-mobile-new-filling-experience=false&routeId=9abc6e5effcda1c1f8e695e588536fd4#5ab45aad85dc4ec3a712e69f6d2869ac");
+                }}
+              >
+                <ThemedText style={styles.pdfButtonText}>
+                  Open PDF Form
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
           </ThemedView>
         </>
       )}
@@ -378,6 +400,44 @@ const styles = StyleSheet.create({
     color: '#0a7ea4',
     backgroundColor: 'rgba(10, 126, 164, 0.08)',
     borderRadius: 25,
+  },
+  pdfDemoContainer: {
+    marginTop: 24,
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: 'rgba(255, 230, 230, 0.2)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 100, 100, 0.2)',
+  },
+  pdfInfoContainer: {
+    marginBottom: 16,
+  },
+  pdfTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+  },
+  pdfDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  pdfButton: {
+    backgroundColor: '#e74c3c',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  pdfButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
 
