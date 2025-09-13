@@ -1,15 +1,14 @@
-import { Image } from 'expo-image';
-import { ScrollView, StyleSheet, Animated, View, Pressable } from 'react-native';
+import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useRef, useEffect, useState } from 'react';
-import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import Dashboard from '@/components/Dashboard';
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Colors, Fonts, Gradients } from '@/constants/theme';
+import { Colors, Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function HomeScreen() {
@@ -161,25 +160,41 @@ export default function HomeScreen() {
             
             {/* Quick Action Buttons */}
             <View style={styles.quickActionsRow}>
-              <Pressable style={styles.quickActionButton}>
+              <Pressable 
+                style={styles.quickActionButton}
+                onPress={() => {
+                  Linking.openURL('expo-router://scan');
+                }}
+              >
                 <View style={[styles.quickActionIconContainer, {backgroundColor: 'rgba(76, 175, 80, 0.2)'}]}>
                   <MaterialCommunityIcons name="qrcode-scan" size={22} color="#4CAF50" />
                 </View>
                 <ThemedText style={styles.quickActionText}>Scan QR</ThemedText>
               </Pressable>
               
-              <Pressable style={styles.quickActionButton}>
+              <Pressable 
+                style={styles.quickActionButton}
+                onPress={() => {
+                  Linking.openURL('expo-router://explore');
+                }}
+              >
                 <View style={[styles.quickActionIconContainer, {backgroundColor: 'rgba(33, 150, 243, 0.2)'}]}>
                   <MaterialCommunityIcons name="magnify" size={22} color="#2196F3" />
                 </View>
                 <ThemedText style={styles.quickActionText}>Explore</ThemedText>
               </Pressable>
               
-              <Pressable style={styles.quickActionButton}>
+              <Pressable 
+                style={styles.quickActionButton}
+                onPress={() => {
+                  // Open PDF link directly
+                  Linking.openURL("https://www.pdffiller.com/jsfiller-desk15/?traceparent=00-bfb6881c86563a7971447a0781a7034b-07b7b0d5e98736de-01&flat_pdf_quality=high&isShareViaLink=1&lang=en&projectId=1950190490&richTextFormatting=true&jsf-page-rearrange-v2=true&jsf-redesign-full=true&jsf-fake-edit-embedded=true&isSkipEditorLoadFrequency=true&jsf-probability-70=true&jsf-socket-io=false&jsf-simplified-modes-iteration-1=true&jsf-offline-mode=false&jsf-heading-bold=true&jsf-fake-edit-stream-editing=true&acc-share-button-in-editor=true&jsf-all-tools-tab=false&jsf-all-tools-tab-branch-b=false&jsf-editor-pdfjs-five=true&jsf-context-menu-to-right-panel=false&jsf-context-menu-to-right-panel-branch-b=false&jsf-disable-autosave=true&jsf-disable-browser-translation=false&jsf-web-mobile-new-filling-experience=false&routeId=9abc6e5effcda1c1f8e695e588536fd4#5ab45aad85dc4ec3a712e69f6d2869ac");
+                }}
+              >
                 <View style={[styles.quickActionIconContainer, {backgroundColor: 'rgba(255, 152, 0, 0.2)'}]}>
-                  <MaterialCommunityIcons name="chart-bar" size={22} color="#FF9800" />
+                  <MaterialCommunityIcons name="file-pdf-box" size={22} color="#FF9800" />
                 </View>
-                <ThemedText style={styles.quickActionText}>Reports</ThemedText>
+                <ThemedText style={styles.quickActionText}>PDF Form</ThemedText>
               </Pressable>
             </View>
           </ThemedView>

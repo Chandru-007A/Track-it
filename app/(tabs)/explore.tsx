@@ -1,7 +1,7 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, TextInput, View, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { ActivityIndicator, Animated, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { QRCodeGenerator } from '@/components/QRCodeGenerator';
@@ -9,7 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Collapsible } from '@/components/ui/collapsible';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, Gradients } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DatabaseService } from '@/lib/database-service';
 import { QRCode } from '@/types/database';
@@ -100,8 +100,8 @@ export default function ExploreScreen() {
               qrId={item.qr_id} 
               size={150} 
               showId={true}
-              // Using URL format so Google Lens can open it directly
-              payload="url" 
+              // Using PDF form link when scanned
+              payload="pdf"
             />
           </View>
           

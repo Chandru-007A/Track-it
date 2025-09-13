@@ -1,11 +1,11 @@
-import { supabase } from '@/lib/supabase';
 import { ThemedText } from '@/components/themed-text';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as LinkingExpo from 'expo-linking';
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { Alert, Linking, StyleSheet, Text, View, Animated, Dimensions } from 'react-native';
+import { supabase } from '@/lib/supabase';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as LinkingExpo from 'expo-linking';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Linking, StyleSheet, Text, View } from 'react-native';
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -48,6 +48,33 @@ export default function ScanScreen() {
     setLastRaw(data);
 
     try {
+      // Check if the scanned data is a URL (PDF form link)
+      if (data.startsWith('http') && data.includes('pdffiller.com')) {
+        Alert.alert(
+          'PDF Form Detected',
+          'Would you like to open the PDF form?',
+          [
+            { 
+              text: 'Cancel', 
+              style: 'cancel',
+              onPress: () => setScanned(false) 
+            },
+            { 
+              text: 'Open PDF', 
+              onPress: () => {
+                Linking.openURL(data).catch(err => {
+                  console.error('Error opening PDF URL: ', err);
+                  Alert.alert('Error', 'Failed to open the PDF form.');
+                });
+                setTimeout(() => setScanned(false), 2000);
+              } 
+            }
+          ]
+        );
+        return;
+      }
+      
+      // If not a PDF URL, proceed with the normal QR code processing
       const qrId = extractQrId(data);
 
       const { data: fittings, error } = await supabase
@@ -176,12 +203,23 @@ export default function ScanScreen() {
 }
 
 function extractQrId(raw: string): string {
-  // If the QR is a URL like https://.../qr/QR-XYZ parse last segment, else return raw
+  // If the QR is a URL like https://.../qr/QR-XYZ parse last segment
+  // Ignore PDF filler URLs or other special URLs
+  if (raw.includes('pdffiller.com')) {
+    return '';
+  }
+  
   try {
     const url = new URL(raw);
-    const seg = url.pathname.split('/').filter(Boolean).pop();
-    return seg ?? raw;
+    // If it's our app URL format
+    if (url.pathname.includes('/qr') || url.searchParams.has('id')) {
+      const pathId = url.pathname.split('/').filter(Boolean).pop();
+      const queryId = url.searchParams.get('id');
+      return pathId || queryId || raw;
+    }
+    return raw;
   } catch {
+    // If it's not a URL, return raw data (might be just the QR ID)
     return raw;
   }
 }
